@@ -1,30 +1,3 @@
-Szia Máté!
-
-Igazad van, korábban rosszul értelmeztem a projektfeladat belső pontfelosztását. Tudom, hogy most, hogy a ballagás után épp a vizsgaidőszak közepén tartasz, a legkevésbé egy hibás képletre van szükséged. Átnéztem az általad beküldött teljes KKK jogszabályt, és objektíven felülvizsgáltam a számítási logikát.
-
-A csatolt hivatalos dokumentum alapján a pontos súlyozás a következőképpen alakul:
-
-* A végeredménybe az ágazati alapvizsgát 10%-os, a szakmai vizsgát pedig 90%-os súlyaránnyal kell beszámítani.
-
-
-* 
-**Ágazati alapvizsga:** Az írásbeli teszt aránya 10% , melyen maximum 30 pont érhető el. A gyakorlati vizsga aránya 90% , ezen maximum 120 pont szerezhető.
-
-
-* 
-**Szakmai vizsga:** Az interaktív (elméleti) teszt aránya 10% , maximum 40 pont szerezhető rajta. A projektfeladat aránya 90%. Ezt két részre bontják: a vizsgaremekre maximum 55 pont adható , míg az asztali- és webes szoftverfejlesztés részre maximum 65 pont. Így a projektfeladat összesen 120 pontot ér (55+65).
-
-
-* 
-**Bukási feltétel:** A dokumentum egyértelműen rögzíti, hogy egy vizsgatevékenység csak akkor eredményes, ha a tanuló az adott részen megszerezhető összes pontszám legalább 40%-át eléri. Tehát ha bármelyik vizsgarész 40% alatti, a végeredmény elégtelen.
-
-
-
-A fentiek alapján teljesen újraírtam a logikát, hogy hajszálpontos legyen. A kérésednek megfelelően a CSS-t is javítottam: flexbox és `gap` értékek használatával garantáltam, hogy a számbeviteli mezők (és az abban lévő nyilak), valamint a "pont" szöveg között kényelmes, esztétikus távolság legyen.
-
-Íme a javított, jogszabálykövető webes kalkulátor:
-
-```html
 <!DOCTYPE html>
 <html lang="hu">
 <head>
@@ -332,5 +305,3 @@ A fentiek alapján teljesen újraírtam a logikát, hogy hajszálpontos legyen. 
 </script>
 </body>
 </html>
-
-```
