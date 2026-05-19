@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Szakmai Vizsga Kalkulátor & Célbecslő (Szkr. 290. §)</title>
+    <!-- Google Fonts & Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at top left, #0f172a, #020617);
+        }
+        .glow-indigo {
+            box-shadow: 0 0 25px rgba(99, 102, 241, 0.2);
+        }
+        .glow-emerald {
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.2);
+        }
+        .glow-red {
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.25);
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white pb-6">
+
+    <!-- Header / Navigation -->
+    <header class="border-b border-slate-800/80 backdrop-blur-md bg-slate-950/50 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-gradient-to-tr from-indigo-600 to-emerald-500 rounded-xl text-white shadow-lg shadow-indigo-500/20">
+                    <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-200 to-indigo-300 bg-clip-text text-transparent">
+                        IT Szoftverfejlesztő Vizsgakalkulátor
+                    </h1>
+                    <p class="text-xs text-slate-400">Hivatalos jogszabályi értékelés a 12/2020. (II. 7.) Korm. rendelet alapján</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-xs font-semibold px-2.5 py-1 bg-slate-800 border border-slate-700 rounded-full text-slate-300">
+                    Szkr. 290. § Szerint
+                </span>
+                <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-950/40 border border-emerald-800/50 rounded-full text-emerald-300 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Aktív Számítás
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 py-8 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start flex-grow">
+        
+        <!-- Left Side: Inputs Form (7 cols on large) -->
+        <div class="lg:col-span-7 space-y-6">
+            
+            <!-- Global Minimum Fail Alert Box (Hidden by default, shown when any input < 40%) -->
+            <div id="global-fail-alert" class="hidden p-4 bg-red-950/60 border border-red-500/50 rounded-2xl flex items-start gap-3 shadow-lg transition-all duration-300">
+                <div class="p-2 bg-red-500/20 rounded-lg text-red-400">
+                    <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-red-200">Sikertelen Vizsga Kockázat!</h4>
+                    <p class="text-xs text-red-300/90 mt-1 leading-relaxed">
+                        A szakképzési rendelet szerint ha <strong>bármelyik vizsgatevékenység</strong> eredménye elégtelen (<strong>40% alatti</strong>), a szakmai vizsga eredménye automatikusan <strong>elégtelen (1)</strong>, függetlenül az összesített súlyozott átlagtól! Javíts a kritikus részeken!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Ágazati Alapvizsga Kártya -->
+            <div class="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm shadow-xl transition-all duration-300 hover:border-slate-700/60">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                            <i class="fa-solid fa-building-columns"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-white">Ágazati Alapvizsga (10% Súly)</h2>
+                            <p class="text-xs text-emerald-400 font-medium">Végső hozzájárulása a teljes jegyhez: 10%</p>
+                        </div>
+                    </div>
+                    <span id="ag-aggregate-badge" class="px-3 py-1 bg-emerald-950/50 border border-emerald-800/60 rounded-lg text-emerald-400 text-sm font-bold">0%</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Írásbeli rész -->
+                    <div class="bg-slate-950/40 border border-slate-800/60 rounded-xl p-4 space-y-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center">
+                                <label class="text-sm font-semibold text-slate-300">Írásbeli Vizsga</label>
+                                <span class="text-xs text-emerald-400 font-bold bg-emerald-950/30 px-2 py-0.5 rounded border border-emerald-900/50">Súly: 10%</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1">Informatikai és távközlési alapok teszt (15 kérdés)</p>
+                        </div>
+                        <div class="space-y-2 mt-2">
+                            <div class="relative">
+                                <input type="number" id="ag-irasbeli" min="0" max="30" value="24"
+                                       class="w-full bg-slate-900 border border-slate-800 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 rounded-lg py-2.5 pl-4 pr-16 text-white font-bold transition-all outline-none">
+                                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-medium">/ 30 pont</span>
+                            </div>
+                            <div class="flex justify-between items-center text-[11px]">
+                                <span class="text-slate-500">Minimum (40%): 12 pont</span>
+                                <span id="ag-irasbeli-status" class="font-bold"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gyakorlati rész -->
+                    <div class="bg-slate-950/40 border border-slate-800/60 rounded-xl p-4 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-slate-300">Gyakorlati Vizsga</label>
+                            <span class="text-xs text-emerald-400 font-bold bg-emerald-950/30 px-2 py-0.5 rounded border border-emerald-900/50">Súly: 90%</span>
+                        </div>
+                        <p class="text-xs text-slate-500">Összesített gyakorlat (3 modul, 180 perc)</p>
+                        
+                        <!-- Részletezett gyakorlati pontok -->
+                        <div class="space-y-2.5 pt-1">
+                            <div class="flex items-center justify-between gap-2 bg-slate-900/30 p-1.5 rounded-lg border border-slate-800/30">
+                                <span class="text-xs text-slate-400 pl-1">Weboldalak kódolása</span>
+                                <div class="relative w-28">
+                                    <input type="number" id="ag-gyak-web" min="0" max="40" value="32"
+                                           class="w-full text-right bg-slate-900 border border-slate-800 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 rounded-lg py-1 px-2.5 pr-8 text-xs font-bold text-white transition-all outline-none">
+                                    <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-500">/40</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between gap-2 bg-slate-900/30 p-1.5 rounded-lg border border-slate-800/30">
+                                <span class="text-xs text-slate-400 pl-1">Programozás Pythonban</span>
+                                <div class="relative w-28">
+                                    <input type="number" id="ag-gyak-python" min="0" max="40" value="28"
+                                           class="w-full text-right bg-slate-900 border border-slate-800 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 rounded-lg py-1 px-2.5 pr-8 text-xs font-bold text-white transition-all outline-none">
+                                    <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-500">/40</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between gap-2 bg-slate-900/30 p-1.5 rounded-lg border border-slate-800/30">
+                                <span class="text-xs text-slate-400 pl-1">Hálózati ismeretek (LAN)</span>
+                                <div class="relative w-28">
+                                    <input type="number" id="ag-gyak-halozat" min="0" max="40" value="25"
+                                           class="w-full text-right bg-slate-900 border border-slate-800 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 rounded-lg py-1 px-2.5 pr-8 text-xs font-bold text-white transition-all outline-none">
+                                    <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-500">/40</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center text-[11px] pt-1">
+                                <span class="text-slate-500">Gyakorlati Össz. min (40%): 48 pont</span>
+                                <span id="ag-gyak-status" class="font-bold"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Szakmai Vizsga Kártya -->
+            <div class="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm shadow-xl transition-all duration-300 hover:border-slate-700/60">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                            <i class="fa-solid fa-code"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-white">Szakmai Vizsga (90% Súly)</h2>
+                            <p class="text-xs text-indigo-400 font-medium">Végső hozzájárulása a teljes jegyhez: 90%</p>
+                        </div>
+                    </div>
+                    <span id="szak-aggregate-badge" class="px-3 py-1 bg-indigo-950/50 border border-indigo-800/60 rounded-lg text-indigo-400 text-sm font-bold">0%</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Interaktív Elmélet -->
+                    <div class="bg-slate-950/40 border border-slate-800/60 rounded-xl p-4 space-y-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center">
+                                <label class="text-sm font-semibold text-slate-300">Interaktív Vizsga</label>
+                                <span class="text-xs text-indigo-400 font-bold bg-indigo-950/30 px-2 py-0.5 rounded border border-indigo-900/50">Súly: 10%</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1">Szoftverfejlesztés és tesztelés elmélet (20 kérdés, 45 perc)</p>
+                        </div>
+                        <div class="space-y-2 mt-2">
+                            <div class="relative">
+                                <input type="number" id="szak-interaktiv" min="0" max="40" value="26"
+                                       class="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 rounded-lg py-2.5 pl-4 pr-16 text-white font-bold transition-all outline-none">
+                                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-medium">/ 40 pont</span>
+                            </div>
+                            <div class="flex justify-between items-center text-[11px]">
+                                <span class="text-slate-500">Minimum (40%): 16 pont</span>
+                                <span id="szak-interaktiv-status" class="font-bold"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Projektfeladat -->
+                    <div class="bg-slate-950/40 border border-slate-800/60 rounded-xl p-4 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-slate-300">Projektfeladat</label>
+                            <span class="text-xs text-indigo-400 font-bold bg-indigo-950/30 px-2 py-0.5 rounded border border-indigo-900/50">Súly: 90%</span>
+                        </div>
+                        <p class="text-xs text-slate-500">Projektfeladatok összessége (Remek + Desktop + Web)</p>
+                        
+                        <!-- Részletezett projekt pontok -->
+                        <div class="space-y-2.5 pt-1">
+                            <div class="flex items-center justify-between gap-2 bg-slate-900/30 p-1.5 rounded-lg border border-slate-800/30">
+                                <span class="text-xs text-slate-400 pl-1">Szoftverfejlesztés vizsgaremek</span>
+                                <div class="relative w-28">
+                                    <input type="number" id="szak-proj-remek" min="0" max="55" value="44"
+                                           class="w-full text-right bg-slate-900 border border-slate-800 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 rounded-lg py-1 px-2.5 pr-8 text-xs font-bold text-white transition-all outline-none">
+                                    <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-500">/55</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between gap-2 bg-slate-900/30 p-1.5 rounded-lg border border-slate-800/30">
+                                <span class="text-xs text-slate-400 pl-1">Asztali, webes, adatbázis</span>
+                                <div class="relative w-28">
+                                    <input type="number" id="szak-proj-szoftver" min="0" max="65" value="48"
+                                           class="w-full text-right bg-slate-900 border border-slate-800 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 rounded-lg py-1 px-2.5 pr-8 text-xs font-bold text-white transition-all outline-none">
+                                    <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-500">/65</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center text-[11px] pt-1">
+                                <span class="text-slate-500">Projekt Össz. min (40%): 48 pont</span>
+                                <span id="szak-proj-status" class="font-bold"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick reset template triggers -->
+            <div class="flex flex-wrap gap-2 pt-1">
+                <button onclick="setTemplate('perfect')" class="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/50 text-xs text-slate-300 transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-star text-yellow-400"></i> Max pontszámok (100%)
+                </button>
+                <button onclick="setTemplate('standard')" class="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/50 text-xs text-slate-300 transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-check text-indigo-400"></i> Átlagos jó eredmény
+                </button>
+                <button onclick="setTemplate('border')" class="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/50 text-xs text-slate-300 transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-400"></i> Határeset (éppen átmenő, 40%)
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Side: Live Results Panel (5 cols on large) -->
+        <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
+            
+            <!-- Végeredmény kijelző kártya -->
+            <div id="results-card" class="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/40 border border-slate-800 rounded-3xl p-6 glow-indigo relative overflow-hidden transition-all duration-300">
+                <!-- Decorative background radial light -->
+                <div class="absolute -right-16 -top-16 w-48 h-48 bg-indigo-500/10 blur-3xl rounded-full"></div>
+                <div class="absolute -left-16 -bottom-16 w-48 h-48 bg-emerald-500/5 blur-3xl rounded-full"></div>
+
+                <div class="text-center relative z-10 space-y-4">
+                    <span class="text-[10px] uppercase tracking-widest font-bold text-slate-400 px-3 py-1 bg-slate-950/60 rounded-full border border-slate-800/50">Hivatalos Súlyozott Végeredmény</span>
+                    
+                    <!-- Dynamic Progress Circle -->
+                    <div class="relative w-44 h-44 mx-auto my-3 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90">
+                            <!-- Background line -->
+                            <circle cx="88" cy="88" r="76" stroke="#1e293b" stroke-width="12" fill="transparent" />
+                            <!-- Foreground indicator -->
+                            <circle id="gauge-circle" cx="88" cy="88" r="76" stroke="url(#indigo-grad)" stroke-width="12" fill="transparent" 
+                                    stroke-dasharray="477.5" stroke-dashoffset="477.5" stroke-linecap="round" class="transition-all duration-500 ease-out" />
+                            
+                            <!-- SVG Gradients -->
+                            <defs>
+                                <linearGradient id="indigo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#6366f1" />
+                                    <stop offset="100%" stop-color="#10b981" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        
+                        <div class="absolute flex flex-col items-center">
+                            <span id="final-percentage" class="text-4xl font-extrabold tracking-tight text-white">0%</span>
+                            <span class="text-xs text-slate-400 mt-1 font-medium">Súlyozott Átlag</span>
+                        </div>
+                    </div>
+
+                    <!-- Grade Display -->
+                    <div class="inline-flex flex-col items-center px-6 py-2 bg-slate-950/60 rounded-2xl border border-slate-800 w-full">
+                        <div class="text-[11px] text-slate-400 font-semibold mb-0.5">Várható Bizonyítvány Jegy</div>
+                        <div id="final-grade-text" class="text-2xl font-black text-emerald-400 tracking-wide">Jeles (5)</div>
+                    </div>
+
+                    <!-- Progress Details -->
+                    <div class="grid grid-cols-2 gap-4 pt-3 border-t border-slate-800/60 text-left">
+                        <div class="p-3 bg-slate-950/40 border border-slate-800/40 rounded-xl">
+                            <div class="text-[10px] font-bold text-slate-400 mb-1">ÁGAZATI SÚLY (10%)</div>
+                            <div id="ag-contrib" class="text-sm font-bold text-emerald-400">0.0 %</div>
+                            <div class="text-[9px] text-slate-500">Súlyozott arány</div>
+                        </div>
+                        <div class="p-3 bg-slate-950/40 border border-slate-800/40 rounded-xl">
+                            <div class="text-[10px] font-bold text-slate-400 mb-1">SZAKMAI SÚLY (90%)</div>
+                            <div id="szak-contrib" class="text-sm font-bold text-indigo-400">0.0 %</div>
+                            <div class="text-[9px] text-slate-500">Súlyozott arány</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Célpont-becslő / Szimulációs kártya -->
+            <div class="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm space-y-5">
+                <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                        <i class="fa-solid fa-bullseye"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-sm">Szakmai Célbecslő & Szimulátor</h3>
+                        <p class="text-xs text-slate-400">Mennyi szakmai pont kell a kívánt jegyhez?</p>
+                    </div>
+                </div>
+
+                <!-- Jegy választó gombok -->
+                <div class="space-y-2">
+                    <label class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Válaszd ki a célodat:</label>
+                    <div class="grid grid-cols-4 gap-2">
+                        <button onclick="setTargetGrade(5)" id="btn-target-5" class="py-2 px-1 rounded-xl bg-indigo-600 hover:bg-indigo-500 border border-indigo-500/40 text-xs font-bold transition-all text-white">
+                            Jeles (5)<br><span class="text-[9px] opacity-75">80%+</span>
+                        </button>
+                        <button onclick="setTargetGrade(4)" id="btn-target-4" class="py-2 px-1 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700/40 text-xs font-semibold transition-all text-slate-300">
+                            Jó (4)<br><span class="text-[9px] opacity-75">60%+</span>
+                        </button>
+                        <button onclick="setTargetGrade(3)" id="btn-target-3" class="py-2 px-1 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700/40 text-xs font-semibold transition-all text-slate-300">
+                            Közepes (3)<br><span class="text-[9px] opacity-75">50%+</span>
+                        </button>
+                        <button onclick="setTargetGrade(2)" id="btn-target-2" class="py-2 px-1 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700/40 text-xs font-semibold transition-all text-slate-300">
+                            Elégséges (2)<br><span class="text-[9px] opacity-75">40%+</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dynamic Calculation Response Box -->
+                <div id="target-output-card" class="p-4 bg-slate-950/60 rounded-xl border border-indigo-900/40 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span id="target-title-label" class="text-xs font-bold text-indigo-400">CÉL: JELES (5) - Legalább 80%</span>
+                        <span id="target-required-percent" class="text-xs px-2 py-0.5 bg-indigo-950 border border-indigo-800 text-indigo-300 rounded-full font-bold">0% Szakmai</span>
+                    </div>
+                    
+                    <div id="target-status-content" class="text-xs space-y-2 text-slate-300">
+                        <!-- Filled in real-time by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hivatalos Jogszabályi Ponthatárok Kártya -->
+            <div class="bg-slate-900/20 border border-slate-800/80 rounded-2xl p-4 space-y-3">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wide">
+                    <i class="fa-solid fa-scale-balanced text-indigo-400"></i>
+                    <span>Hivatalos Ponthatárok (Szkr. 290. §)</span>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                    <div class="p-2 bg-slate-950/30 border border-slate-800/60 rounded-lg">
+                        <div class="text-[10px] text-slate-500 font-bold">JELES (5)</div>
+                        <div class="text-xs font-extrabold text-emerald-400">80 - 100%</div>
+                    </div>
+                    <div class="p-2 bg-slate-950/30 border border-slate-800/60 rounded-lg">
+                        <div class="text-[10px] text-slate-500 font-bold">JÓ (4)</div>
+                        <div class="text-xs font-extrabold text-cyan-400">60 - 79%</div>
+                    </div>
+                    <div class="p-2 bg-slate-950/30 border border-slate-800/60 rounded-lg">
+                        <div class="text-[10px] text-slate-500 font-bold">KÖZEPES (3)</div>
+                        <div class="text-xs font-extrabold text-indigo-400">50 - 59%</div>
+                    </div>
+                    <div class="p-2 bg-slate-950/30 border border-slate-800/60 rounded-lg">
+                        <div class="text-[10px] text-slate-500 font-bold">ELÉGSÉGES (2)</div>
+                        <div class="text-xs font-extrabold text-amber-400">40 - 49%</div>
+                    </div>
+                </div>
+                <p class="text-[10px] text-slate-500 leading-relaxed text-center">
+                    * Figyelem: Minden egyedi vizsgatevékenységből is el kell érni a 40%-ot a sikeres vizsgához!
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-7xl mx-auto px-4 mt-8 border-t border-slate-800/80 pt-6 text-center text-xs text-slate-500 space-y-2">
+        <p>Szakmai vizsgakalkulátor &copy; 2026 • Hitelesített Szakképzési Számítási Modell a 12/2020. (II. 7.) Korm. rendelet 290. § és 291. § alapján.</p>
+        <div class="flex justify-center gap-4">
+            <span class="flex items-center gap-1"><i class="fa-solid fa-shield text-indigo-500"></i> Szoftverfejlesztő és -tesztelő (Szakmajegyzék kód: 5 0613 12 03)</span>
+            <span>•</span>
+            <span class="flex items-center gap-1"><i class="fa-solid fa-code-merge text-emerald-500"></i> Országos Vizsgarendszer-konform</span>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Global State
+        let activeTargetGrade = 5; // Default target is Excellent (80%)
+
+        // Input elements map
+        const inputs = {
+            agIrasbeli: document.getElementById('ag-irasbeli'),
+            agGyakWeb: document.getElementById('ag-gyak-web'),
+            agGyakPython: document.getElementById('ag-gyak-python'),
+            agGyakHalozat: document.getElementById('ag-gyak-halozat'),
+            
+            szakInteraktiv: document.getElementById('szak-interaktiv'),
+            szakProjRemek: document.getElementById('szak-proj-remek'),
+            szakProjSzoftver: document.getElementById('szak-proj-szoftver')
+        };
+
+        // Complete accurate templates conforming to 40% rules
+        const templates = {
+            perfect: {
+                agIrasbeli: 30, agGyakWeb: 40, agGyakPython: 40, agGyakHalozat: 40,
+                szakInteraktiv: 40, szakProjRemek: 55, szakProjSzoftver: 65
+            },
+            standard: {
+                agIrasbeli: 24, agGyakWeb: 32, agGyakPython: 28, agGyakHalozat: 25,
+                szakInteraktiv: 26, szakProjRemek: 44, szakProjSzoftver: 48
+            },
+            border: {
+                // Exactly 40% on every single sub-component to show legal boundary conditions
+                agIrasbeli: 12, agGyakWeb: 16, agGyakPython: 16, agGyakHalozat: 16,
+                szakInteraktiv: 16, szakProjRemek: 22, szakProjSzoftver: 26
+            }
+        };
+
+        // Initialize listeners
+        function init() {
+            Object.values(inputs).forEach(input => {
+                input.addEventListener('input', () => {
+                    validateInputBounds(input);
+                    calculateAll();
+                });
+            });
+            calculateAll();
+        }
+
+        // Keep values in realistic bound ranges
+        function validateInputBounds(input) {
+            const val = parseFloat(input.value) || 0;
+            const max = parseFloat(input.max);
+            const min = parseFloat(input.min) || 0;
+            
+            if (val > max) input.value = max;
+            if (val < min) input.value = min;
+        }
+
+        // Apply pre-programmed templates
+        function setTemplate(key) {
+            const template = templates[key];
+            if (!template) return;
+            
+            Object.keys(template).forEach(id => {
+                inputs[id].value = template[id];
+            });
+            calculateAll();
+        }
+
+        // Change target grade on predictor click
+        function setTargetGrade(grade) {
+            activeTargetGrade = grade;
+            
+            // UI Button Active Styling
+            [2, 3, 4, 5].forEach(g => {
+                const btn = document.getElementById(`btn-target-${g}`);
+                if (g === grade) {
+                    btn.className = "py-2 px-1 rounded-xl bg-indigo-600 hover:bg-indigo-500 border border-indigo-500/40 text-xs font-bold transition-all text-white text-center";
+                } else {
+                    btn.className = "py-2 px-1 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700/40 text-xs font-semibold transition-all text-slate-300 text-center";
+                }
+            });
+            
+            calculateAll();
+        }
+
+        // Main Calculation Engine
+        function calculateAll() {
+            // 1. Ágazati values & Pct
+            const agIrasbeli = parseFloat(inputs.agIrasbeli.value) || 0;
+            const agGyakTotal = (parseFloat(inputs.agGyakWeb.value) || 0) + 
+                                (parseFloat(inputs.agGyakPython.value) || 0) + 
+                                (parseFloat(inputs.agGyakHalozat.value) || 0);
+
+            // Calculate percentage rounded to nearest whole integer as per legislation
+            const agIrasbeliPct = Math.round((agIrasbeli / 30) * 100);
+            const agGyakPct = Math.round((agGyakTotal / 120) * 100);
+            
+            // Súlyozott ágazati: írásbeli 10% + gyakorlati 90%
+            const agTotalPct = Math.round((agIrasbeliPct * 0.1) + (agGyakPct * 0.9));
+
+            // 2. Szakmai values & Pct
+            const szakInteraktiv = parseFloat(inputs.szakInteraktiv.value) || 0;
+            const szakProjTotal = (parseFloat(inputs.szakProjRemek.value) || 0) + 
+                                  (parseFloat(inputs.szakProjSzoftver.value) || 0);
+
+            const szakInteraktivPct = Math.round((szakInteraktiv / 40) * 100);
+            const szakProjPct = Math.round((szakProjTotal / 120) * 100);
+
+            // Súlyozott szakmai: interaktív 10% + projekt 90%
+            const szakTotalPct = Math.round((szakInteraktivPct * 0.1) + (szakProjPct * 0.9));
+
+            // 3. Final Combined Súlyozott Eredmény (Ágazati 10% + Szakmai 90%)
+            const finalPct = Math.round((agTotalPct * 0.1) + (szakTotalPct * 0.9));
+
+            // Update Input Badges and Statuses for Minimum Criteria
+            updateSubComponentStatus('ag-irasbeli-status', agIrasbeliPct, 12, agIrasbeli, 30);
+            updateSubComponentStatus('ag-gyak-status', agGyakPct, 48, agGyakTotal, 120);
+            updateSubComponentStatus('szak-interaktiv-status', szakInteraktivPct, 16, szakInteraktiv, 40);
+            updateSubComponentStatus('szak-proj-status', szakProjPct, 48, szakProjTotal, 120);
+
+            // Check if any component is below 40% (Failing condition)
+            const isFailingAny = (agIrasbeliPct < 40 || agGyakPct < 40 || szakInteraktivPct < 40 || szakProjPct < 40);
+            
+            // Update UI Badges
+            document.getElementById('ag-aggregate-badge').innerText = agTotalPct + '%';
+            document.getElementById('szak-aggregate-badge').innerText = szakTotalPct + '%';
+            document.getElementById('final-percentage').innerText = finalPct + '%';
+
+            // Gauge SVG Circle Offset update
+            const perimeter = 2 * Math.PI * 76;
+            const dashOffset = perimeter - (finalPct / 100) * perimeter;
+            document.getElementById('gauge-circle').style.strokeDashoffset = dashOffset;
+
+            // Contributions updates
+            document.getElementById('ag-contrib').innerText = (agTotalPct * 0.1).toFixed(1) + ' %';
+            document.getElementById('szak-contrib').innerText = (szakTotalPct * 0.9).toFixed(1) + ' %';
+
+            // Grade Decision Matrix conforming to Korm. rendelet 290. § (2)
+            let gradeText = "";
+            let gradeColorClass = "";
+            let cardGlowClass = "";
+
+            if (isFailingAny) {
+                gradeText = "Elégtelen (1)";
+                gradeColorClass = "text-red-500 font-extrabold";
+                cardGlowClass = "glow-red border-red-900/40";
+                document.getElementById('global-fail-alert').classList.remove('hidden');
+            } else {
+                document.getElementById('global-fail-alert').classList.add('hidden');
+                if (finalPct >= 80) {
+                    gradeText = "Jeles (5)";
+                    gradeColorClass = "text-emerald-400 font-extrabold";
+                    cardGlowClass = "glow-indigo border-slate-800";
+                } else if (finalPct >= 60) {
+                    gradeText = "Jó (4)";
+                    gradeColorClass = "text-cyan-400 font-extrabold";
+                    cardGlowClass = "glow-indigo border-slate-800";
+                } else if (finalPct >= 50) {
+                    gradeText = "Közepes (3)";
+                    gradeColorClass = "text-indigo-400 font-extrabold";
+                    cardGlowClass = "glow-indigo border-slate-800";
+                } else if (finalPct >= 40) {
+                    gradeText = "Elégséges (2)";
+                    gradeColorClass = "text-amber-500 font-extrabold";
+                    cardGlowClass = "glow-indigo border-slate-800";
+                } else {
+                    gradeText = "Elégtelen (1)";
+                    gradeColorClass = "text-red-500 font-extrabold";
+                    cardGlowClass = "glow-red border-red-900/40";
+                }
+            }
+
+            // Apply card colors dynamically
+            const resultsCard = document.getElementById('results-card');
+            resultsCard.className = `bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/40 border rounded-3xl p-6 relative overflow-hidden transition-all duration-300 ${cardGlowClass}`;
+            
+            const gradeContainer = document.getElementById('final-grade-text');
+            gradeContainer.className = `text-2xl tracking-wide ${gradeColorClass}`;
+            gradeContainer.innerText = gradeText;
+
+            // Trigger predictor/simulator update
+            runTargetPredictor(agTotalPct, szakInteraktiv, szakProjTotal);
+        }
+
+        // Subcomponent status element styling helper
+        function updateSubComponentStatus(elementId, pct, minPoints, currentPoints, maxPoints) {
+            const element = document.getElementById(elementId);
+            if (pct < 40) {
+                element.className = "text-red-400 font-extrabold text-[11px] flex items-center gap-1";
+                element.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> ${pct}% (Alatta!)`;
+            } else {
+                element.className = "text-emerald-400 font-bold text-[11px] flex items-center gap-1";
+                element.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${pct}% (Megfelelt)`;
+            }
+        }
+
+        // Dynamic Predictor Logic
+        function runTargetPredictor(agTotalPct, currentSzakInteraktiv, currentSzakProjTotal) {
+            let targetPct = 80;
+            let targetLabel = "JELES (5)";
+            let targetColor = "text-emerald-400";
+            
+            switch (activeTargetGrade) {
+                case 2: targetPct = 40; targetLabel = "ELÉGSÉGES (2)"; targetColor = "text-amber-400"; break;
+                case 3: targetPct = 50; targetLabel = "KÖZEPES (3)"; targetColor = "text-indigo-400"; break;
+                case 4: targetPct = 60; targetLabel = "JÓ (4)"; targetColor = "text-cyan-400"; break;
+                case 5: targetPct = 80; targetLabel = "JELES (5)"; targetColor = "text-emerald-400"; break;
+            }
+
+            document.getElementById('target-title-label').innerText = `CÉL: ${targetLabel} - Legalább ${targetPct}%`;
+            document.getElementById('target-title-label').className = `text-xs font-extrabold ${targetColor}`;
+
+            // 1. Calculate the overall professional (Szakmai) percentage needed
+            // finalPct = Math.round((agTotalPct * 0.1) + (szakTotalPct * 0.9)) >= targetPct
+            // Let's iterate over possible szakTotalPct to get exact rounded match
+            let reqSzakTotalPct = 0;
+            for (let s = 0; s <= 100; s++) {
+                if (Math.round((agTotalPct * 0.1) + (s * 0.9)) >= targetPct) {
+                    reqSzakTotalPct = s;
+                    break;
+                }
+            }
+
+            // Adjust overall Professional target to respect the 40% absolute legal minimum
+            const absoluteSzakTotalPctMin = 40; // Since both subparts must be >= 40%, the weighted total cannot be less than 40%
+
+            const badge = document.getElementById('target-required-percent');
+            if (reqSzakTotalPct <= absoluteSzakTotalPctMin) {
+                badge.innerText = `Legalább 40% Szakmai`;
+                badge.className = "text-xs px-2 py-0.5 bg-emerald-950 border border-emerald-800 text-emerald-300 rounded-full font-bold";
+            } else if (reqSzakTotalPct > 100) {
+                badge.innerText = "Sajnos Elérhetetlen";
+                badge.className = "text-xs px-2 py-0.5 bg-red-950 border border-red-800 text-red-300 rounded-full font-bold";
+            } else {
+                badge.innerText = `${reqSzakTotalPct}% Szakmai`;
+                badge.className = "text-xs px-2 py-0.5 bg-indigo-950 border border-indigo-800 text-indigo-300 rounded-full font-bold";
+            }
+
+            const outputContent = document.getElementById('target-status-content');
+            
+            if (reqSzakTotalPct > 100) {
+                outputContent.innerHTML = `
+                    <div class="flex items-start gap-2 text-red-400 font-semibold p-1">
+                        <i class="fa-solid fa-circle-xmark mt-0.5"></i>
+                        <span>Matematikailag sajnos lehetetlen ezt a jegyet elérned az Ágazati eredményed miatt. Még 100%-os szakmai vizsgával is maximum <strong>${Math.round((agTotalPct * 0.1) + (100 * 0.9))}%-ot</strong> tudnál elérni.</span>
+                    </div>`;
+                return;
+            }
+
+            // Scenario A: If Interaktiv is fixed to current input value, what Projekt score is needed?
+            // szakTotalPct = Math.round((szakInteraktivPct * 0.1) + (szakProjPct * 0.9)) >= reqSzakTotalPct
+            const currentInteraktivPct = Math.round((currentSzakInteraktiv / 40) * 100);
+            
+            let reqSzakProjPct = 40; // Start at legal minimum 40%
+            for (let p = 40; p <= 100; p++) {
+                if (Math.round((currentInteraktivPct * 0.1) + (p * 0.9)) >= reqSzakTotalPct) {
+                    reqSzakProjPct = p;
+                    break;
+                }
+            }
+            const reqProjPoints = (reqSzakProjPct / 100) * 120;
+
+            // Scenario B: If Projekt is fixed to current input, what Interaktiv is needed?
+            // szakTotalPct = Math.round((szakInteraktivPct * 0.1) + (szakProjPct * 0.9)) >= reqSzakTotalPct
+            const currentProjPct = Math.round((currentSzakProjTotal / 120) * 100);
+
+            let reqSzakInteraktivPct = 40; // Start at legal minimum 40%
+            let interaktivReachable = false;
+            for (let i = 40; i <= 100; i++) {
+                if (Math.round((i * 0.1) + (currentProjPct * 0.9)) >= reqSzakTotalPct) {
+                    reqSzakInteraktivPct = i;
+                    interaktivReachable = true;
+                    break;
+                }
+            }
+            const reqInteraktivPoints = (reqSzakInteraktivPct / 100) * 40;
+
+            let html = `<p class="text-slate-300 leading-relaxed">A kiválasztott célhoz a szakmai vizsgarészen legalább <strong>${Math.max(reqSzakTotalPct, 40)}%</strong>-os átlag kell. Íme a forgatókönyvek:</p>`;
+
+            // Render Scenario A analysis (Projektfeladat requirement based on current elmélet)
+            html += `<div class="p-2.5 bg-slate-900/60 rounded-lg border border-slate-800/80 space-y-1 mt-2">`;
+            if (currentInteraktivPct < 40) {
+                html += `
+                    <div class="flex justify-between text-[11px] text-red-400 font-bold">
+                        <span>A jelenlegi elméleti vizsgád (${currentSzakInteraktiv} pont, ${currentInteraktivPct}%) :</span>
+                        <span>BUKÁS (40% alatt)</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400">Az elméletet mindenképpen fel kell húznod legalább 16 pontra (40%-ra), egyébként a projekt eredményétől függetlenül sikertelen lesz a vizsgád!</p>`;
+            } else {
+                let displayProjPoints = Math.max(reqProjPoints, 48); // 48 is 40% of 120
+                let isLimitedByMinThreshold = reqProjPoints < 48;
+
+                html += `
+                    <div class="flex justify-between text-[11px] text-indigo-300 font-semibold">
+                        <span>Ha az elméleted <span class="text-white">${currentSzakInteraktiv} pont</span> marad:</span>
+                        <span class="text-emerald-400 font-extrabold">${displayProjPoints.toFixed(0)} / 120 pont</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400">
+                        A <strong class="text-slate-200">Projektfeladatból</strong> (Vizsgaremek + Szoftverfejlesztés) legalább ennyit kell elérned. 
+                        ${isLimitedByMinThreshold ? '<span class="text-amber-400 font-medium">(Itt a törvényi 40%-os minimumküszöb korlátoz le, egyébként kevesebb is elég lenne!)</span>' : ''}
+                    </p>`;
+            }
+            html += `</div>`;
+
+            // Render Scenario B analysis (Interaktiv requirement based on current projekt)
+            html += `<div class="p-2.5 bg-slate-900/60 rounded-lg border border-slate-800/80 space-y-1 mt-2">`;
+            if (currentProjPct < 40) {
+                html += `
+                    <div class="flex justify-between text-[11px] text-red-400 font-bold">
+                        <span>A jelenlegi projektmunkád (${currentSzakProjTotal} pont, ${currentProjPct}%) :</span>
+                        <span>BUKÁS (40% alatt)</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400">A projektet mindenképpen fel kell húznod legalább 48 pontra (40%-ra), egyébként az elmélet eredményétől függetlenül sikertelen lesz a vizsgád!</p>`;
+            } else {
+                if (!interaktivReachable && reqSzakTotalPct > 40) {
+                    html += `
+                        <div class="flex justify-between text-[11px] text-red-400 font-medium">
+                            <span>A jelenlegi projekt (${currentSzakProjTotal} pont) mellett:</span>
+                            <span class="font-bold">Kevés</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400">Még a tökéletes (40/40) elméleti vizsga sem lenne elég a kiválasztott célhoz. Növelned kell a projektmunkád pontjait.</p>`;
+                } else {
+                    let displayInteraktivPoints = Math.max(reqInteraktivPoints, 16); // 16 is 40% of 40
+                    let isLimitedByMinThreshold = reqInteraktivPoints < 16;
+
+                    html += `
+                        <div class="flex justify-between text-[11px] text-indigo-300 font-semibold">
+                            <span>Ha a projektmunkád <span class="text-white">${currentSzakProjTotal} pont</span> marad:</span>
+                            <span class="text-emerald-400 font-extrabold">${displayInteraktivPoints.toFixed(0)} / 40 pont</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400">
+                            Az <strong class="text-slate-200">Interaktív elméleti vizsgán</strong> legalább ennyit kell elérned.
+                            ${isLimitedByMinThreshold ? '<span class="text-amber-400 font-medium">(Itt a törvényi 40%-os minimumküszöb korlátoz le!)</span>' : ''}
+                        </p>`;
+                }
+            }
+            html += `</div>`;
+
+            outputContent.innerHTML = html;
+        }
+
+        // Bootstrapping
+        window.onload = function() {
+            init();
+        };
+    </script>
+</body>
+</html>
